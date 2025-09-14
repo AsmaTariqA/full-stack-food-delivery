@@ -1,5 +1,4 @@
-import { ObjectId } from "mongodb";
-import mongoose, { Schema, model, models } from "mongoose";
+import mongoose, { Schema, models } from "mongoose";
 
 const ExtraPriceSchema = new Schema({
   name: String,
@@ -12,11 +11,13 @@ const menuItemSchema = new Schema(
     name: { type: String, required: true },
     description: { type: String },
     basePrice: { type: Number },
-    category: { type: ObjectId, ref: "Category" },
+    category: { type: Schema.Types.ObjectId, ref: "Category" },
     sizes: { type: [ExtraPriceSchema] },
     extraIngredientPrices: { type: [ExtraPriceSchema] },
   },
   { timestamps: true }
 );
 
-export const MenuItem = models?.MenuItem || model("MenuItem", menuItemSchema);
+const MenuItem = models.MenuItem || mongoose.model("MenuItem", menuItemSchema);
+
+export default MenuItem;

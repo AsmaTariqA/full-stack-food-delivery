@@ -24,6 +24,7 @@ import ExtraIngredientPricesForm from "@/components/layout/profile_components/me
 import MenuList from "@/components/layout/profile_components/menu_comonents/MenuList";
 import useSWR, { mutate } from "swr";
 import ChevronDown from "@/components/icons/ChevronDown";
+
 export default function MenuItemTab({ user }) {
   const session = useSession();
   const [selectedMenu, setSelectedMenu] = useState({});
@@ -32,6 +33,8 @@ export default function MenuItemTab({ user }) {
   const [imagefile, setImageFile] = useState(null);
 
   const [menuImage, setMenuImage] = useState("");
+  const [price, setPrice] = useState(0);
+
 
   const [sizeDisplay, setSizeDisplay] = useState(false);
 
@@ -47,9 +50,7 @@ export default function MenuItemTab({ user }) {
   // Get categories data from server with SWR
   const { data: categories, error, isLoading } = useSWR("categories", fetcher);
 
-  const [sizes, setSizes] = useState(
-    selectedMenu?.sizes || []
-  );
+  const [sizes, setSizes] = useState(selectedMenu?.sizes || []);
 
   const [extraIngredientPrices, setExtraIngredientPrices] = useState(
     selectedMenu?.extraIngredientPrices || []
@@ -92,28 +93,8 @@ export default function MenuItemTab({ user }) {
   };
 
   const uploadImage = async () => {
-    let imageURL;
-    if (
-      imagefile &&
-      (imagefile.type === "image/jpeg" ||
-        imagefile.type === "image/jpg" ||
-        imagefile.type === "image/png")
-    ) {
-      const image = new FormData();
-      image.append("file", imagefile);
-      image.append("cloud_name", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME); //From Cloudinary Account
-      image.append("upload_preset", process.env.NEXT_PUBLIC_UPLOAD_PRESET); //From Cloudinary Account
-
-      //First Save Image to Cloudinary
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/ray-cloud/image/upload",
-        { method: "post", body: image }
-      );
-
-      const imgData = await response.json();
-      imageURL = imgData?.url?.toString();
-    }
-    return imageURL;
+    // Removed Cloudinary logic
+    return menuImage; // Simply return the local object URL
   };
 
   // Update Menu item
@@ -157,7 +138,7 @@ export default function MenuItemTab({ user }) {
   };
 
   const formik = useFormik({
-    enableReinitialize: enable, //to enable reinitialization //Rq:here enable is a state (true when an item is selected)
+    enableReinitialize: enable,
     initialValues: {
       itemName: selectedMenu?.name,
       description: selectedMenu?.description,
@@ -171,12 +152,10 @@ export default function MenuItemTab({ user }) {
       itemName: Yup.string().required("Required field"),
       description: Yup.string().required("Required field"),
       basePrice: Yup.number().positive().required("Required field"),
-      category: Yup.string()
-      .required("Category is required"),
+      category: Yup.string().required("Category is required"),
     }),
     onSubmit: async (values) => {
       setApiError("");
-      // Upload Image:
       const imageURL = await uploadImage();
       const {
         itemName,
@@ -207,7 +186,6 @@ export default function MenuItemTab({ user }) {
           formik.setFieldValue("basePrice", "");
           mutate("menuItems");
           setMenuImage("");
-          // window.location.reload();
         } else {
           const errorData = response.data;
           setApiError(errorData.message);
@@ -362,11 +340,9 @@ export default function MenuItemTab({ user }) {
                       {categories?.length > 0 &&
                         categories?.map((category) => {
                           return (
-                            <>
-                              <option key={category._id} value={category._id}>
-                                {category.name}
-                              </option>
-                            </>
+                            <option key={category._id} value={category._id}>
+                              {category.name}
+                            </option>
                           );
                         })}
                     </select>

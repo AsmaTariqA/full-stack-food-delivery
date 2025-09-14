@@ -5,46 +5,53 @@ import { useRouter } from "next/navigation";
 
 export default function Hero() {
   const router = useRouter();
-  return (
-    <section className="hero mt-4 ">
-      <div className="py-8  w-full">
-        <h1 className="text-4xl font-semibold text-center leading-tight">
-          Welcome to Our Delicious <span className="text-primary">Pizza</span>
-          World
-        </h1>
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3 mx-14 my-2">
-          <div className="font-lemon md:text-justify">
-            <p className="my-6 text-green-800">
-              IIndulge in the finest selection of handcrafted pizzas made with
-              the freshest local ingredients and traditional recipes.{" "}
-            </p>
-            <p className="my-6 ml-16 text-orange-600">
-              Our simple platform lets you explore a world of culinary delights,
-              from classic margherita to innovative gourmet creations.
-            </p>
-            <p className="my-6 text-green-800">
-              Order with a few clicks and savor the magic of artisanal pizza
-              delivered straight to your door.
-            </p>
-            <div className="flex gap-4 text-sm  justify-center">
-              <button
-                onClick={() => router.push("/menu")}
-                className="bg-primary text-white px-4 py-2 rounded-full flex items-center gap-2 uppercase"
-              >
-                Order now
-                <Right />
-              </button>
-              <button
-                onClick={() => router.push("/profile")}
-                className="flex gap-2 py-2 text-gray-600 font-semibold"
-              >
-                Visit Profile
-                <Right />
-              </button>
-            </div>
-          </div>
 
-          <Image src={"/pizza.png"} alt={"pizza"} height={50} width={180} />
+  return (
+    <section className="relative overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-green-50 -z-10" />
+
+      <div className="container mx-auto px-6 py-16 flex flex-col md:flex-row items-center gap-12">
+        {/* Text Content */}
+        <div className="flex-1 text-center md:text-left">
+          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight tracking-tight">
+            Taste the <span className="text-primary">Pizza</span> You Deserve
+          </h1>
+          <p className="mt-6 text-lg text-gray-700 max-w-md mx-auto md:mx-0">
+            Freshly crafted, oven-baked, and made with love. Explore a wide
+            range of pizzas — from timeless classics to gourmet creations —
+            delivered to your doorstep.
+          </p>
+
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            <button
+              onClick={() => router.push("/menu")}
+              className="bg-primary hover:bg-primary/90 transition text-white px-6 py-3 rounded-full flex items-center justify-center gap-2 font-semibold shadow-md"
+            >
+              Order Now
+              <Right />
+            </button>
+
+            <button
+              onClick={() => router.push("/profile")}
+              className="px-6 py-3 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition flex items-center justify-center gap-2 font-semibold"
+            >
+              Visit Profile
+              <Right />
+            </button>
+          </div>
+        </div>
+
+        {/* Hero Image */}
+        <div className="flex-1 flex justify-center md:justify-end">
+          <Image
+            src="/pizza.png"
+            alt="Delicious Pizza"
+            width={500}
+            height={500}
+            className="drop-shadow-2xl rounded-2xl"
+            priority
+          />
         </div>
       </div>
     </section>

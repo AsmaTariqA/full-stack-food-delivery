@@ -3,11 +3,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import { mutate } from "swr";
 import { Card, CardBody, CardFooter, Image } from "@nextui-org/react";
+import { Modal } from "antd";
 import Loading from "@/app/loading";
 import Error from "@/app/error";
 import { DeleteIcon } from "@/components/icons/DeleteIcon";
-import { Modal } from "antd";
 import { useMenuItems } from "@/Hooks/useMenuItems";
+
 export default function MenuList({
   setSelectedMenu,
   setApiError,
@@ -17,12 +18,16 @@ export default function MenuList({
   setMenuImage,
 }) {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [menuItemToDelete, setMenuItemToDelete] = useState(null);
 
   const { menuItems, error, isLoading } = useMenuItems();
 
+  // Loading or error states
   if (isLoading) return <Loading />;
+  if (error) return <Error />;
 
-  const setVisibleDeleteModal = () => {
+  const setVisibleDeleteModal = (item = null) => {
+    setMenuItemToDelete(item);
     setOpenDeleteModal(!openDeleteModal);
   };
 
@@ -39,20 +44,26 @@ export default function MenuList({
         setApiError(errorData.message);
       }
     } catch (error) {
-      error?.response?.data?.message
-        ? setApiError(error.response.data.message)
-        : setApiError("An unexpected error occurred. Please try again later.");
+      setApiError(
+        error?.response?.data?.message ||
+          "An unexpected error occurred. Please try again later."
+      );
+    } finally {
+      setOpenDeleteModal(false);
     }
   };
 
   return (
     <div>
-      <h1>MenuList</h1>
-      <h2></h2>
+      <h1 className="text-2xl font-bold mb-4">Menu List</h1>
 
-      <div className="gap-2 grid grid-cols-1 sm:grid-cols-3 p-2 ">
-        {menuItems.map((item, index) => (
-          <div key={index}>
+      {(!menuItems || menuItems.length === 0) && (
+        <p className="text-center text-gray-500">No menu items found.</p>
+      )}
+
+      <div className="gap-4 grid grid-cols-1 sm:grid-cols-3 p-2">
+        {(menuItems ?? []).map((item, index) => (
+          <div key={item._id || index}>
             <Card
               className="mx-auto w-64 h-64 sm:w-44 md:w-60"
               shadow="sm"
@@ -77,38 +88,27 @@ export default function MenuList({
                 <b>{item.name}</b>
                 <p className="text-default-500">{item.basePrice} $</p>
                 <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                  <DeleteIcon
-                    onClick={() => {
-                      setVisibleDeleteModal();
-                      // setMenuItemToDeleteToDelete(item);
-                    }}
-                  />
+                  <DeleteIcon onClick={() => setVisibleDeleteModal(item)} />
                 </span>
               </CardFooter>
             </Card>
-            <Modal
-              className="mt-40"
-              title="Delete menu item"
-              open={openDeleteModal}
-              onOk={() => {
-                deleteMenuItem(item._id);
-                setOpenDeleteModal(!openDeleteModal);
-              }}
-              okButtonProps={{
-                style: {
-                  backgroundColor: "blue",
-                  color: "white",
-                },
-              }}
-              onCancel={setVisibleDeleteModal}
-            >
-              <div>
-                <p>Are you sure to delete this menu item?</p>
-              </div>
-            </Modal>
           </div>
         ))}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Delete Menu Item"
+        open={openDeleteModal}
+        onOk={() => menuItemToDelete && deleteMenuItem(menuItemToDelete._id)}
+        okButtonProps={{
+          style: { backgroundColor: "blue", color: "white" },
+        }}
+        onCancel={() => setVisibleDeleteModal(null)}
+      >
+        <p>Are you sure you want to delete this menu item?</p>
+        <p className="font-bold">{menuItemToDelete?.name}</p>
+      </Modal>
     </div>
   );
 }
