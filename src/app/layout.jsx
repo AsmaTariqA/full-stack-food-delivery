@@ -22,7 +22,7 @@ const lemon = Lemon({
 });
 
 export const metadata = {
-  title: "SRayen Food Ordering",
+  title: "The pizza shop",
   description: "Food Ordering App",
 };
 
